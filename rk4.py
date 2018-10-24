@@ -5,7 +5,7 @@ def rk4(func, stepsize, to, wo):
 	t = to
 	w = wo
 	print("step 0: t = ", t, "w = ", w)
-	for i in range(4):
+	for i in range(int(2/h)):
 		k1 = h*func(t, w)
 		k2 = h*func(t + h/2, w + k1/2)
 		k3 = h*func(t + h/2, w + k2/2)
@@ -17,4 +17,4 @@ def rk4(func, stepsize, to, wo):
 def func(t, y):
 	return (y - t**2 + 1)
 
-rk4(func, 0.5, 0, 0.5)
+rk4(func, 0.2, 0, 0.5)
