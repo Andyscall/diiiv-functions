@@ -27,5 +27,4 @@ def fprime(x):
 	return 3.*x**2
 
 
-
-NR(func, fprime, 1.5, 20, 0.01)
+NR(func, fprime, -0.01, 200, 0.01)
