@@ -16,8 +16,9 @@ def funcarray(vars):
 	x = vars[0]
 	y = vars[1]
 	z = vars[2]
-	# return [vars[0]**2 - 5, vars[1]**2, (vars[2]**2)/2]
-	return [math.cos(x) + math.cos(y) + math.cos(z) -3/5, math.cos(3*x) + math.cos(3*y) + math.cos(3*z), math.cos(5*x) + math.cos(5*y) + math.cos(5*z)]
+	return [math.cos(x) + math.cos(y) + math.cos(z) -3/5, 
+	math.cos(3*x) + math.cos(3*y) + math.cos(3*z), 
+	math.cos(5*x) + math.cos(5*y) + math.cos(5*z)]
 
 def J(vars):
 	x = vars[0]
@@ -26,41 +27,81 @@ def J(vars):
 	return [[-math.sin(x), -math.sin(y), -math.sin(z)],
 	[-3*math.sin(3*x), -3*math.sin(3*y), -3*math.sin(3*z)],
 	[-5*math.sin(5*x), -5*math.sin(5*y), -5*math.sin(5*z)]]
-	# return [[2*vars[0], 0, 0],
-	# [0, 2*vars[1], 0],
-	# [0, 0, vars[2]]]
 
 
 
-def NRdimensions(funcarray, J, guessarray, count, tol, ntol):
+def func2(vars):
+	N = int(len(vars)/2)
+	vars[0] = vars[0] - xfixed - dt*vfixed
+	vars[1] = vars[1] - vfixed - dt*g
+	for i in range(2, N, 2):
+		x = vars[i]
+		v = vars[i+1]
+		vars[i] = x - vars[i-2] - dt*vars[i-1]
+		vars[i+1] = v - vars[i-1] - dt*g
+	return vars
+
+
+def J2(vars):
+	N = int(len(vars)/2)
+	J2 = np.zeros((2*N, 2*N))
+	for i in range(2*N):
+		J2[i][i] = 1
+		try:
+			J2[0][2*N-1] = 0
+			J2[2*i][2*i-1] = -dt	
+		except:
+			try:
+				J2[i+2][i] = -1
+			except:
+				continue
+		try:
+			J2[i+2][i] = -1
+		except:
+			continue
+	print("J2", '\n', J2)
+	return J2
+
+
+def NRdimensions(funcarray, J, guessarray, count, tol):
+	tolarray = tol*np.ones(len(guessarray))
 
 	for i in range(0, count):
 		Jinv = np.linalg.inv(J(guessarray))
-		print("Jinv", Jinv, '\n')
+		if np.linalg.det(Jinv) == 0:
+			print(Jinv)
+			print("Reached a local min/max in a function at", guessarray)
+			break
+
+		print("Jinv", '\n', Jinv, '\n')
 		print("F", funcarray(guessarray), '\n')
+
 		Y = np.dot(Jinv, funcarray(guessarray))
+
 		print("Y", Y, '\n')
 		print("guess", guessarray, '\n')
-
-		if np.all(Y < tol) and np.all(Y > ntol):
-			print("done at", guessarray)
+		if np.all(Y < tol) and np.all(Y > np.dot(-1, tol)):
+			print("done at", guessarray, "count", i)
+			print(funcarray(guessarray))
 			return guessarray
 		else:
 			guessarray = np.subtract(guessarray, Y)
 
-		# print("guess is:", guessarray)
+		print("guess is:", guessarray, '\n')
 		# print("dx is:", J(guessarray))
 
 	print("ran out of counts")
 
+dt = 0.1
 
+g = -9.8
 
-guesses = [3, 1, 2]
+xfixed = 1
 
-tol = [0.001, 0.0001, 0.0001]
+vfixed = 1
 
-ntol = [-0.0001, -0.0001, -0.0001]
+guesses = [2, 2, 3, 3]
 
-NRdimensions(funcarray, J, guesses, 200, tol, ntol)
+tol = 0.0001
 
-
+NRdimensions(func2, J2, guesses, 5, tol)
