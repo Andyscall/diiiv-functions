@@ -12,34 +12,35 @@ import math
 # 			J[i][j] = sym.diff(func, var)
 # 	return J
 
-def funcarray(vars):
-	x = vars[0]
-	y = vars[1]
-	z = vars[2]
-	return [math.cos(x) + math.cos(y) + math.cos(z) -3/5, 
-	math.cos(3*x) + math.cos(3*y) + math.cos(3*z), 
-	math.cos(5*x) + math.cos(5*y) + math.cos(5*z)]
+# def funcarray(vars):
+# 	x = vars[0]
+# 	y = vars[1]
+# 	z = vars[2]
+# 	return [math.cos(x) + math.cos(y) + math.cos(z) -3/5, 
+# 	math.cos(3*x) + math.cos(3*y) + math.cos(3*z), 
+# 	math.cos(5*x) + math.cos(5*y) + math.cos(5*z)]
 
-def J(vars):
-	x = vars[0]
-	y = vars[1]
-	z = vars[2]
-	return [[-math.sin(x), -math.sin(y), -math.sin(z)],
-	[-3*math.sin(3*x), -3*math.sin(3*y), -3*math.sin(3*z)],
-	[-5*math.sin(5*x), -5*math.sin(5*y), -5*math.sin(5*z)]]
+# def J(vars):
+# 	x = vars[0]
+# 	y = vars[1]
+# 	z = vars[2]
+# 	return [[-math.sin(x), -math.sin(y), -math.sin(z)],
+# 	[-3*math.sin(3*x), -3*math.sin(3*y), -3*math.sin(3*z)],
+# 	[-5*math.sin(5*x), -5*math.sin(5*y), -5*math.sin(5*z)]]
 
 
 
 def func2(vars):
+	newvars = np.zeros(len(vars))
 	N = int(len(vars)/2)
-	vars[0] = vars[0] - xfixed - dt*vfixed
-	vars[1] = vars[1] - vfixed - dt*g
+	newvars[0] = vars[0] - xfixed - dt*vfixed
+	newvars[1] = vars[1] - vfixed - dt*g
 	for i in range(2, N, 2):
 		x = vars[i]
 		v = vars[i+1]
-		vars[i] = x - vars[i-2] - dt*vars[i-1]
-		vars[i+1] = v - vars[i-1] - dt*g
-	return vars
+		newvars[i] = x - vars[i-2] - dt*vars[i-1]
+		newvars[i+1] = v - vars[i-1] - dt*g
+	return newvars
 
 
 def J2(vars):
@@ -67,6 +68,7 @@ def NRdimensions(funcarray, J, guessarray, count, tol):
 	tolarray = tol*np.ones(len(guessarray))
 
 	for i in range(0, count):
+		print("this guess:", guessarray)
 		Jinv = np.linalg.inv(J(guessarray))
 		if np.linalg.det(Jinv) == 0:
 			print(Jinv)
@@ -104,4 +106,4 @@ guesses = [2, 2, 3, 3]
 
 tol = 0.0001
 
-NRdimensions(func2, J2, guesses, 5, tol)
+NRdimensions(func2, J2, guesses, 50, tol)
